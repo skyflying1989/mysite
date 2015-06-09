@@ -1,0 +1,64 @@
+{% load product_test_extras %}
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>产测自动化</title>
+</head>
+<body>
+<p>欢迎 <b>{{user.username}} , </b><a href = "{% url 'django.contrib.auth.views.logout' %}">注销</a></p>
+<ul style='text-align:left;padding: 0.15em 0 1px 0;'>
+<li style='display:inline;'><b><a href="{% url 'product_test:config' %}">配置</a></b></li>
+<li style='display:inline;'><b><a href="{% url 'product_test:recent_task' %}">执行任务</a></b></li>
+<li style='display:inline;'><b><a href="{% url 'product_test:task' %}">任务列表</a></b></li>
+<li style='display:inline;'><b>自动化管理</b></li>
+</ul>
+<hr />
+<h3><b>平台</b></h3>
+<form action={% url 'product_test:manage' %} method='get'>
+<label>平台名称</label><input type='text' name='platform_name' />
+<input type='submit' value='搜索'>
+</form>
+<p><input type="button" value="添加" onclick="javascript:location='{% url 'product_test:platform' 'add' %}';"></p>
+<table border="1" style="text-align:center">
+    <tr><th>平台名称</th><th>内存大小</th><th>测试脚本</th><th>操作</th></tr>
+    {% for platform in platform_list %}
+    <tr>
+        <td >{{platform.name}}</td><td>{{platform.memory}}</td><td>{{platform.script}}</td>
+        <td>
+            <input type="button" value="编辑" onclick="javascript:location='{% url 'product_test:platform' 'edit/'|add_str:platform.pk %}';">
+            <input type="button" value="删除" onclick="javascript:location='{% url 'product_test:platform' 'delete/'|add_str:platform.pk %}';">
+       </td>
+    </tr>
+    {% endfor %}
+</table>
+<p>
+{% if flag1 %}
+{% else %}
+<a href='{% url 'product_test:manage' %}?page=1{{query}}'>首页</a>
+<a href='{% url 'product_test:manage' %}?page={{page_num | add:-1}}{{query}}' >上一页</a>
+{% endif %}
+第{{page_num}}页(共{{total_page_num}}页)
+{% if flag2 %}
+{% else %}
+<a href='{% url 'product_test:manage' %}?page={{page_num | add:1}}{{query}}' >下一页</a>
+<a href='{% url 'product_test:manage' %}?page={{total_page_num}}{{query}}'>尾页</a>
+{% endif %}
+</p>
+<hr />
+<h3><b>测试脚本</b></h3>
+<form action = "{% url 'product_test:script' 'add' %}"  method='get'> 
+<input  type= "submit"  value="添加">
+</form>
+<table border="1" style="text-align:center">
+    <tr><th>脚本名称</th><th>上传用户</th><th>操作</th></tr>
+    {% for script in script_list %}
+    <tr>
+        <td ><a href="{{ script.files.url }}" style='text-decoration:none'>{{script.files.name|reg:'script/(\S+).py'}}</a></td><td>{{script.username}}</td>        
+        <td>
+            <input type="button" value="删除" onclick="javascript:location='{% url 'product_test:script'  'delete/'|add_str:script.pk %}';">
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+</body>
+</html>

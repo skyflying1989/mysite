@@ -1,0 +1,55 @@
+{% load product_test_extras %}
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>产测自动化</title>
+</head>
+<script>
+function clearall(url)
+{
+if(window.confirm('警告：点击\“确认\”将清除所有已保存的信息！'))
+    location= url
+return false;
+}
+</script>
+</head>
+<body>
+<p>欢迎 <b>{{user.username}} , </b><a href = "{% url 'django.contrib.auth.views.logout' %}">注销</a></p>
+<ul style='text-align:left;padding: 0.15em 0 1px 0;'>
+<li style='display:inline;'><b>配置</b></li>
+<li style='display:inline;'><b><a href="{% url 'product_test:recent_task' %}">执行任务</a></b></li>
+<li style='display:inline;'><b><a href="{% url 'product_test:task' %}">任务列表</a></b></li>
+<li style='display:inline;'><b><a href="{% url 'product_test:manage' %}">自动化管理</a></b></li>
+</ul>
+<hr />
+<h4><b>平台及版本信息</b></h4>
+<p>
+<input type="button" value="编辑" onclick="javascript:location='{% url 'product_test:pool' 'edit' %}';">
+<input type="button" value="清除" onclick="clearall('{% url 'product_test:pool' 'clear' %}')">
+</p>
+<ul>
+    <li>工单号:  {{pool.job}}</li>
+    <li>平台名称:  {{pool.platform}}</li>
+    <li>硬件版本号:  {{pool.hw}}</li>
+    <li>Bootloader版本:  {{pool.bootloader}}</li>
+    <li>Sysloader版本:  {{pool.sysloader}}</li>
+    <li>OS image版本:  {{pool.image}}</li>
+    <li>CPLD版本:  {{pool.cpld}}</li>
+</ul>
+<hr />
+<h4><b>许可证信息</b></h4>
+<p>
+<input type="button" value="添加" onclick="javascript:location='{% url 'product_test:license' 'add' %}';">
+<input type="button" value="清除" onclick="clearall('{% url 'product_test:license' 'clear' %}')">
+</p>
+<table border="1" style="text-align:center">
+    <tr><th>许可证名称</th><th>用户名</th><th>截止日期/时限</th><th>操作</th></tr>
+    {% for license in license_list %}
+    <tr>
+    <td >{{license.get_name_display}}</td><td>{{license.username}}</td><td>{{license.deadline}}</td>
+    <td><input type="button" value="删除" onclick="javascript:location='{% url 'product_test:license' 'delete/'|add_str:license.pk %}';"></td>
+    </tr>
+    {% endfor %}
+</table>
+</body>
+</html>

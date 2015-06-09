@@ -1,0 +1,57 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>产测自动化</title>
+</head>
+<body>
+<p>欢迎 <b>{{user.username}} , </b><a href = "{% url 'django.contrib.auth.views.logout' %}">注销</a></p>
+<ul style='text-align:left;padding: 0.15em 0 1px 0;'>
+<li style='display:inline;'><b><a href="{% url 'product_test:config' %}">配置</a></b></li>
+<li style='display:inline;'><b><a href="{% url 'product_test:recent_task' %}">执行任务</a></b></li>
+<li style='display:inline;'><b>任务列表</b></li>
+<li style='display:inline;'><b><a href="{% url 'product_test:manage' %}">自动化管理</a></b></li>
+</ul>
+<hr />
+<form action={% url 'product_test:task' %} method='get'>
+<label>工单号</label><input type='text' name='name' /><label>用户名</label><input type='text' name='username' />
+<label>SN号</label><input type='text' name='sn' />
+<input type='submit' value='搜索'>
+</form>
+<p>总共: {{task_num}} </p>
+<table border="1" style="text-align:center">
+    <tr>
+        <th>工单号</th><th>用户名</th><th>平台名称</th><th>OS image</th><th>bootloader</th>
+        <th>sysloader</th><th>开始时间</th><th>结束时间</th><th>运行状态</th><th>运行结果</th><th>操作</th>        
+    </tr>
+     {% for task in task_list %}
+     <tr>
+        <td ><a href={% url 'product_test:subtask' task.pk %}>{{task.name}}</a></td><td>{{task.username}}</td>
+        <td>{{task.platform}}</td><td>{{task.image}}</td><td>{{task.bootloader}}</td><td>{{task.sysloader}}</td><td>{{task.begin}}</td><td>{{task.over}}</td>
+        {% if task.state == 1 %}<td>初始化</td>{% elif  task.state == 2 %}<td>正在运行</td>{% elif task.state == 3 %}<td>已结束</td>{% elif task.state == 4 %}<td>被停止</td>{% endif %}
+        {% if task.result == 0 %}<td></td>{% elif task.result == 1 %}<td style="color:#006600">成功</td>{% elif  task.result == 2 %}<td style="color:#FF0000">失败</td>{% endif %}
+        <td> 
+             {% if task.state == 1 %} 
+             <input type="button" value="删除" disabled="disabled" onclick="javascript:location='{% url 'product_test:operation_task' task.pk 'delete'%}?page={{page_num}}{{query}}';">
+             {% else %}
+             <input type="button" value="删除" onclick="javascript:location='{% url 'product_test:operation_task' task.pk 'delete'%}?page={{page_num}}{{query}}';">
+             {% endif %} 
+            </form> 
+        </td>
+    </tr>
+    {% endfor%}
+</table>
+<p>
+{% if flag1 %}
+{% else %}
+<a href='{% url 'product_test:task' %}?page=1{{query}}'>首页</a>
+<a href='{% url 'product_test:task' %}?page={{page_num | add:-1}}{{query}}' >上一页</a>
+{% endif %}
+第{{page_num}}页(共{{total_page_num}}页)
+{% if flag2 %}
+{% else %}
+<a href='{% url 'product_test:task' %}?page={{page_num | add:1}}{{query}}' >下一页</a>
+<a href='{% url 'product_test:task' %}?page={{total_page_num}}{{query}}'>尾页</a>
+{% endif %}
+</p>
+</body>
+</html>

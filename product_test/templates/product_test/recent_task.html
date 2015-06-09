@@ -1,0 +1,61 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" /><meta http-equiv=refresh content="5" />
+<title>产测自动化</title>
+</head>
+<body>
+<p>欢迎 <b>{{user.username}} , </b><a href = "{% url 'django.contrib.auth.views.logout' %}">注销</a></p>
+<ul style='text-align:left;padding: 0.15em 0 1px 0;'>
+<li style='display:inline;'><b><a href="{% url 'product_test:config' %}">配置</a></b></li>
+<li style='display:inline;'><b>执行任务</b></li>
+<li style='display:inline;'><b><a href="{% url 'product_test:task' %}">任务列表</a></b></li>
+<li style='display:inline;'><b><a href="{% url 'product_test:manage' %}">自动化管理</a></b></li>
+</ul>
+<hr />
+<h4><b>终端控制器</b></h4>
+<p><input type="button" value="添加" onclick="javascript:location='{% url 'product_test:add_terminal' %}';"></p>
+<table border="1" style="text-align:center">
+    <tr><th>名称</th><th>IP地址</th><th>端口数</th><th>操作</th></tr>
+    {% for terminal in terminal_list %}
+    <tr>
+        <td ><a href ="{% url 'product_test:operation_terminal' terminal.pk 'device_edit' %}">{{terminal.name}}</a></td><td>{{terminal.ip}}</td><td>{{terminal.port}}</td>              
+        <td>
+            <input type="button" value="编辑" onclick="javascript:location='{% url 'product_test:operation_terminal' terminal.pk  'edit' %}';">
+            <input type="button" value="删除" onclick="javascript:location='{% url 'product_test:operation_terminal' terminal.pk  'delete' %}';">
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+<hr />
+{% if not flag %}
+    <p><input type="button" value="运行任务" onclick="javascript:location='{% url 'product_test:perform_task' %}';"></p>
+{% else %}
+    {% if task.state == 1 %}
+    <p><input type="button" value="停止任务"  disabled="disabled"></p>    
+    {% elif task.state == 2 %}
+    <p><input type="button" value="停止任务" onclick="javascript:location='{% url 'product_test:operation_task' task.pk 'stop' %}';"></p>
+    {% elif task.state == 3 or task.state == 4 %}
+    <p><input type="button" value="运行任务" onclick="javascript:location='{% url 'product_test:perform_task' %}';"></p>
+    {% endif %}
+    <p>
+    <table border="0" style="text-align:left">
+    <tr><th>运行状态:</th> {% if task.state == 1 %}<td>初始化</td>{% elif  task.state == 2 %}<td>正在运行</td>{% elif task.state == 3%}<td>已结束</td>{% elif task.state == 4%}<td>被停止</td>{% endif %}
+           <th> 运行结果:</th> {% if task.result == 1%}<td style="color:#006600">成功</td>{% elif  task.result == 2%}<td style="color:#FF0000">失败</td>{% endif %}
+    </tr>
+    </table>
+    </p>
+    <p>总共: {{subtasklist|length}}</p>
+    <table border="1" style="text-align:center"> 
+    <tr><th>终端控制器</th><th>端口号</th><th>序列号</th><th>MAC地址</th><th>运行状态</th><th>运行结果</th><th>结果详情</th><th>运行日志</th><th>操作提示</th></tr>
+    {% for subtask in subtasklist %}
+    <tr>
+    <td>{{subtask.terminal}}</td><td>{{subtask.port_id}}</td><td>{{subtask.sn}}</td><td>{{subtask.mac}}</td>
+    {% if subtask.state == 1 %}<td>初始化</td>{% elif subtask.state == 2 %}<td>正在运行</td>{% elif subtask.state == 3 %}<td>已结束</td>{% endif %}
+    {% if subtask.result == 0 %}<td></td>{% elif subtask.result == 1%}<td style="color:#006600">成功</td>{% elif subtask.result == 2 %}<td style="color:#FF0000">失败</td>{% endif %}
+    <td><a href="{% url 'product_test:operation_subtask'  task.pk subtask.pk  'log' %}">查看</a></td>
+    <td><a href="{% url 'product_test:operation_subtask' task.pk subtask.pk  'consolelog' %}">查看</a></td>
+    <td style="color:#FF0000;font-weight:bold">{{subtask.prompt}}</td>
+    </tr>
+    {% endfor %}
+    </table>
+{%endif%}

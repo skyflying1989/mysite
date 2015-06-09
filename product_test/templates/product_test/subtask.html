@@ -1,0 +1,24 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>产测自动化</title>
+</head>
+<body>
+<p><input type="button" value="返回任务列表" onclick="javascript:location='{% url 'product_test:task' %}';"></p>
+<h3><b>子任务列表</b></h3>
+<table border="1" style="text-align:center">
+    <tr>
+        <th>序列号</th><th>MAC地址</th><th>运行状态</th><th>运行结果</th><th>结果详情</th><th>运行日志</th>
+    </tr>
+     {% for subtask in subtask_list %}
+     <tr>
+        <td>{{subtask.sn}}</td><td>{{subtask.mac}}</td>
+        {% if subtask.state == 1 %}<td>初始化</td>{% elif subtask.state == 2 %}<td>正在运行</td>{% elif subtask.state == 3 %}<td>已结束</td>{% endif %}
+        {% if subtask.result == 0 %}<td></td>{% elif subtask.result == 1%}<td style="color:#006600">成功</td>{% else %}<td style="color:#FF0000">失败</td>{% endif %}
+        <td><a href="{% url 'product_test:operation_subtask'  index subtask.pk  'log' %}">查看</a></td>
+        <td><a href="{% url 'product_test:operation_subtask' index subtask.pk  'consolelog' %}">查看</a></td>
+    </tr>
+    {% endfor%}
+</table>
+</body>
+</html>
